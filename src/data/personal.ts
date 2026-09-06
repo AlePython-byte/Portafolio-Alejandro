@@ -6,6 +6,7 @@ import residentEvilCover from "../../public/images/resident-evil-7.jpg";
 import travelPhoto from "../../public/images/viaje.jpeg";
 type PersonalPieceCopy = {
   title: string;
+  selectorLabel: string;
   short: string;
   text: string;
   imageAlt: string;
@@ -18,6 +19,7 @@ type PersonalSectionCopy = {
   selectStory: string;
   collapseStory: string;
   backToCards: string;
+  storySelectorLabel: string;
   mullis: PersonalPieceCopy & { plaque: string };
   music: PersonalPieceCopy & {
     album: string;
@@ -49,12 +51,14 @@ export const personalCopy: Record<"es" | "en", PersonalSectionCopy> = {
     eyebrow: "02 · Mi lado personal",
     title: "Fuera del código",
     intro:
-      "También hay tiempo para Mullis, un buen álbum, una partida de Resident Evil y mirar el mundo desde otra altura.",
+      "Un poco sobre mí y los pasatiempos que disfruto fuera del código: la compañía de mi gata, la música, los videojuegos y viajar para descubrir nuevas perspectivas.",
     selectStory: "Abrir historia",
     collapseStory: "Cerrar historia",
     backToCards: "Volver a las tarjetas",
+    storySelectorLabel: "Selecciona una historia",
     mullis: {
       title: "Mullis, mi compañía favorita",
+      selectorLabel: "Mullis",
       short: "Alegría, juegos y compañía todos los días.",
       text: "Mullis es mi gata: alegre, juguetona y siempre buscando estar conmigo. Le encanta acompañarme en lo que esté haciendo y, entre juegos y compañía, se ha ganado su lugar en cada uno de mis días.",
       imageAlt: "Mullis sentada con la cara y las orejas visibles",
@@ -62,6 +66,7 @@ export const personalCopy: Record<"es" | "en", PersonalSectionCopy> = {
     },
     music: {
       title: "Feid, en repeat",
+      selectorLabel: "Feid",
       short: "Un álbum al que siempre termino volviendo.",
       album: "FERXXO VOL X: Sagrado",
       albumLabel: "Álbum favorito",
@@ -73,6 +78,7 @@ export const personalCopy: Record<"es" | "en", PersonalSectionCopy> = {
     },
     game: {
       title: "Un poco de acción. Mucho terror",
+      selectorLabel: "Resident Evil 7",
       short: "Mi saga favorita y el terror que mejor funciona.",
       text: "Resident Evil es mi saga favorita y me he jugado todos, desde los clásicos. Si tengo que elegir uno, me quedo con Resident Evil 7: para mí es el que mejor mezcla el terror con ese toque de acción que hace que no quieras soltar el control.",
       imageAlt: "Carátula completa de Resident Evil 7",
@@ -80,6 +86,7 @@ export const personalCopy: Record<"es" | "en", PersonalSectionCopy> = {
     },
     travel: {
       title: "Otra forma de cambiar de perspectiva",
+      selectorLabel: "Viajes",
       short: "Paisajes que se entienden distinto desde arriba.",
       text: "Disfruto mucho viajar y conocer nuevos paisajes. Pero hay algo que me gusta especialmente: verlos desde lo más alto. Mirar por la ventana y encontrar montañas, nubes y caminos allá abajo es de mis partes favoritas del viaje.",
       imageAlt:
@@ -91,12 +98,14 @@ export const personalCopy: Record<"es" | "en", PersonalSectionCopy> = {
     eyebrow: "02 · Personal side",
     title: "Beyond code",
     intro:
-      "There is also time for Mullis, a good album, a round of Resident Evil, and seeing the world from a different height.",
+      "A little about me and the hobbies I enjoy beyond code: time with my cat, music, video games, and traveling to discover new perspectives.",
     selectStory: "Open story",
     collapseStory: "Close story",
     backToCards: "Back to cards",
+    storySelectorLabel: "Choose a story",
     mullis: {
       title: "Mullis, my favorite companion",
+      selectorLabel: "Mullis",
       short: "Joy, playtime, and companionship every day.",
       text: "Mullis is my cat: cheerful, playful, and always looking to be close to me. She loves joining me in whatever I am doing and, between playtime and companionship, she has earned a place in every one of my days.",
       imageAlt: "Mullis sitting with her face and ears visible",
@@ -104,6 +113,7 @@ export const personalCopy: Record<"es" | "en", PersonalSectionCopy> = {
     },
     music: {
       title: "Feid, on repeat",
+      selectorLabel: "Feid",
       short: "An album I always find myself returning to.",
       album: "FERXXO VOL X: Sagrado",
       albumLabel: "Favorite album",
@@ -115,6 +125,7 @@ export const personalCopy: Record<"es" | "en", PersonalSectionCopy> = {
     },
     game: {
       title: "A little action. A lot of horror",
+      selectorLabel: "Resident Evil 7",
       short: "My favorite series and horror at its best.",
       text: "Resident Evil is my favorite series, and I have played every game since the classics. If I have to choose one, I pick Resident Evil 7: to me, it has the best mix of horror and that touch of action that makes it impossible to put the controller down.",
       imageAlt: "Full Resident Evil 7 cover art",
@@ -122,6 +133,7 @@ export const personalCopy: Record<"es" | "en", PersonalSectionCopy> = {
     },
     travel: {
       title: "Another way to change perspective",
+      selectorLabel: "Travel",
       short: "Landscapes feel different when seen from above.",
       text: "I really enjoy traveling and discovering new landscapes. But there is something I especially love: seeing them from above. Looking out the window and finding mountains, clouds, and roads below is one of my favorite parts of a trip.",
       imageAlt:

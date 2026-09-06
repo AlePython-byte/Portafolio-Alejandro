@@ -5,11 +5,10 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
-  type Ref,
 } from "react";
 import {
   AnimatePresence,
+  LayoutGroup,
   motion,
   useReducedMotion,
 } from "motion/react";
@@ -29,11 +28,18 @@ type SectionCopy = (typeof personalCopy)[keyof typeof personalCopy];
 
 const pieceIds: PieceId[] = ["mullis", "music", "game", "travel"];
 const fanPositions = [
-  { rotation: "-5deg", offset: "1.6rem" },
-  { rotation: "-1.7deg", offset: "0" },
-  { rotation: "2deg", offset: ".35rem" },
-  { rotation: "5deg", offset: "1.8rem" },
+  { rotation: -5, offset: 26 },
+  { rotation: -1.7, offset: 0 },
+  { rotation: 2, offset: 6 },
+  { rotation: 5, offset: 29 },
 ];
+
+const layoutTransition = {
+  type: "spring" as const,
+  stiffness: 330,
+  damping: 34,
+  mass: 0.82,
+};
 
 const reveal = (reducedMotion: boolean | null, delay = 0) => ({
   initial: reducedMotion ? false : { y: 20 },
@@ -90,6 +96,7 @@ type MediaProps = {
   showAlbumCover: boolean;
   onAlbumCoverError: () => void;
   onToggle: (id: PieceId) => void;
+  reducedMotion: boolean | null;
 };
 
 function StoryMedia({
@@ -101,6 +108,7 @@ function StoryMedia({
   showAlbumCover,
   onAlbumCoverError,
   onToggle,
+  reducedMotion,
 }: MediaProps) {
   const piece = copy[id];
   const controlLabel = `${
@@ -111,12 +119,22 @@ function StoryMedia({
     "aria-expanded": isSelected,
     "aria-controls": isSelected ? "personal-expanded-story" : undefined,
     "aria-label": controlLabel,
+    "data-story-id": id,
     onClick: () => onToggle(id),
+  };
+  const mediaLayoutProps = {
+    layoutId: `personal-media-${id}`,
+    transition: {
+      layout: reducedMotion ? { duration: 0 } : layoutTransition,
+    },
   };
 
   if (id === "music") {
     return (
-      <div className={`music-object-stage ${expanded ? "is-expanded" : ""}`}>
+      <motion.div
+        {...mediaLayoutProps}
+        className={`music-object-stage ${expanded ? "is-expanded" : ""}`}
+      >
         <button
           {...commonButtonProps}
           className="story-photo-control album-sleeve"
@@ -136,13 +154,14 @@ function StoryMedia({
           onCoverError={onAlbumCoverError}
           showCover={showAlbumCover}
         />
-      </div>
+      </motion.div>
     );
   }
 
   if (id === "mullis") {
     return (
-      <figure
+      <motion.figure
+        {...mediaLayoutProps}
         className={`story-figure mullis-figure ${expanded ? "is-expanded" : ""}`}
       >
         <button {...commonButtonProps} className="story-photo-control">
@@ -162,13 +181,14 @@ function StoryMedia({
           <LuPawPrint className="size-4" aria-hidden="true" />
           {copy.mullis.plaque}
         </figcaption>
-      </figure>
+      </motion.figure>
     );
   }
 
   if (id === "game") {
     return (
-      <figure
+      <motion.figure
+        {...mediaLayoutProps}
         className={`story-figure game-case ${expanded ? "is-expanded" : ""}`}
       >
         <button {...commonButtonProps} className="story-photo-control">
@@ -181,15 +201,18 @@ function StoryMedia({
                 ? "(max-width: 899px) calc(100vw - 5rem), 22rem"
                 : "17rem"
             }
-            className="object-cover object-[50%_78%]"
+            className={
+              expanded ? "object-contain" : "object-cover object-[50%_78%]"
+            }
           />
         </button>
-      </figure>
+      </motion.figure>
     );
   }
 
   return (
-    <figure
+    <motion.figure
+      {...mediaLayoutProps}
       className={`story-figure travel-postcard ${expanded ? "is-expanded" : ""}`}
     >
       <button {...commonButtonProps} className="story-photo-control">
@@ -208,7 +231,7 @@ function StoryMedia({
       {expanded ? (
         <figcaption className="travel-note">{copy.travel.note}</figcaption>
       ) : null}
-    </figure>
+    </motion.figure>
   );
 }
 
@@ -240,7 +263,6 @@ type CompactCardProps = MediaProps & {
   index: number;
   rotationEnabled: boolean;
   onToggleRotation: () => void;
-  musicRef?: Ref<HTMLDivElement>;
   reducedMotion: boolean | null;
 };
 
@@ -248,26 +270,48 @@ function CompactCard({
   index,
   rotationEnabled,
   onToggleRotation,
-  musicRef,
   reducedMotion,
   ...mediaProps
 }: CompactCardProps) {
   const piece = mediaProps.copy[mediaProps.id];
-  const fanStyle = {
-    "--fan-rotation": fanPositions[index].rotation,
-    "--fan-offset": fanPositions[index].offset,
-  } as CSSProperties;
+  const fanPosition = fanPositions[index];
 
   return (
     <motion.div
       layout
-      ref={mediaProps.id === "music" ? musicRef : undefined}
       className="personal-fan-card-wrap"
       transition={{ duration: reducedMotion ? 0 : 0.28 }}
     >
-      <article className="personal-compact-card" style={fanStyle}>
-        <StoryMedia {...mediaProps} expanded={false} />
-        <div className="personal-compact-copy">
+      <motion.article
+        layoutId={`personal-card-${mediaProps.id}`}
+        className="personal-compact-card"
+        initial={false}
+        animate={
+          reducedMotion
+            ? { rotate: 0, y: 0 }
+            : { rotate: fanPosition.rotation, y: fanPosition.offset }
+        }
+        whileHover={
+          reducedMotion
+            ? undefined
+            : { y: fanPosition.offset - 6, transition: { duration: 0.18 } }
+        }
+        transition={{
+          layout: reducedMotion ? { duration: 0 } : layoutTransition,
+          rotate: { duration: reducedMotion ? 0 : 0.4, ease: "easeOut" },
+          y: { duration: reducedMotion ? 0 : 0.4, ease: "easeOut" },
+        }}
+      >
+        <StoryMedia
+          {...mediaProps}
+          expanded={false}
+          reducedMotion={reducedMotion}
+        />
+        <motion.div
+          className="personal-compact-copy"
+          layout="position"
+          transition={{ duration: reducedMotion ? 0 : 0.2 }}
+        >
           <h3>{piece.title}</h3>
           <p>{piece.short}</p>
           {mediaProps.id === "music" ? (
@@ -277,9 +321,67 @@ function CompactCard({
               onToggle={onToggleRotation}
             />
           ) : null}
-        </div>
-      </article>
+        </motion.div>
+      </motion.article>
     </motion.div>
+  );
+}
+
+type StorySelectorsProps = {
+  copy: SectionCopy;
+  selectedId: PieceId;
+  onSelect: (id: PieceId) => void;
+};
+
+function StorySelectors({
+  copy,
+  selectedId,
+  onSelect,
+}: StorySelectorsProps) {
+  const selectorImages = {
+    mullis: personalImages.mullis,
+    music: personalImages.feid,
+    game: personalImages.residentEvil,
+    travel: personalImages.travel,
+  };
+
+  return (
+    <div
+      className="personal-story-selectors"
+      role="group"
+      aria-label={copy.storySelectorLabel}
+    >
+      {pieceIds.map((id) => {
+        const isActive = selectedId === id;
+        return (
+          <button
+            key={id}
+            type="button"
+            className={`personal-story-selector ${isActive ? "is-active" : ""}`}
+            aria-pressed={isActive}
+            aria-controls="personal-expanded-story"
+            onClick={() => onSelect(id)}
+          >
+            <span className={`personal-selector-thumb is-${id}`}>
+              <Image
+                src={selectorImages[id]}
+                alt=""
+                fill
+                sizes="4.5rem"
+                className={
+                  id === "game"
+                    ? "object-contain"
+                    : id === "mullis"
+                      ? "object-cover object-[50%_42%]"
+                      : "object-cover"
+                }
+              />
+            </span>
+            <span>{copy[id].selectorLabel}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
@@ -287,7 +389,8 @@ type ExpandedStoryProps = MediaProps & {
   rotationEnabled: boolean;
   onToggleRotation: () => void;
   onBack: () => void;
-  musicRef?: Ref<HTMLDivElement>;
+  contentVisible: boolean;
+  isClosing: boolean;
   reducedMotion: boolean | null;
 };
 
@@ -295,7 +398,8 @@ function ExpandedStory({
   rotationEnabled,
   onToggleRotation,
   onBack,
-  musicRef,
+  contentVisible,
+  isClosing,
   reducedMotion,
   ...mediaProps
 }: ExpandedStoryProps) {
@@ -304,18 +408,43 @@ function ExpandedStory({
   return (
     <motion.article
       id="personal-expanded-story"
-      ref={mediaProps.id === "music" ? musicRef : undefined}
       className="personal-expanded-story"
-      initial={reducedMotion ? false : { y: 18, scale: 0.99 }}
-      animate={{ y: 0, scale: 1 }}
-      exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
-      transition={{ duration: reducedMotion ? 0 : 0.3 }}
+      layout
+      layoutId={`personal-card-${mediaProps.id}`}
+      transition={{
+        layout: reducedMotion ? { duration: 0 } : layoutTransition,
+      }}
     >
-      <div className={`personal-expanded-grid is-${mediaProps.id}`}>
-        <div className="personal-expanded-media">
-          <StoryMedia {...mediaProps} expanded />
-        </div>
-        <div className="personal-expanded-copy">
+      <motion.div
+        key={mediaProps.id}
+        className={`personal-expanded-grid is-${mediaProps.id}`}
+        layout
+        transition={{
+          layout: reducedMotion ? { duration: 0 } : layoutTransition,
+        }}
+      >
+        <motion.div
+          className="personal-expanded-media"
+          initial={reducedMotion ? false : { opacity: 0.2 }}
+          animate={{ opacity: isClosing || contentVisible ? 1 : 0.2 }}
+          transition={{ duration: reducedMotion ? 0 : 0.12 }}
+        >
+          <StoryMedia
+            {...mediaProps}
+            expanded
+            reducedMotion={reducedMotion}
+          />
+        </motion.div>
+        <motion.div
+          className="personal-expanded-copy"
+          layout="position"
+          initial={reducedMotion ? false : { opacity: 0, y: 7 }}
+          animate={{
+            opacity: contentVisible ? 1 : 0,
+            y: contentVisible ? 0 : isClosing ? 5 : -4,
+          }}
+          transition={{ duration: reducedMotion ? 0 : 0.17, ease: "easeOut" }}
+        >
           {mediaProps.id === "music" ? (
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -343,8 +472,8 @@ function ExpandedStory({
             <LuArrowLeft className="size-4" aria-hidden="true" />
             {mediaProps.copy.backToCards}
           </button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </motion.article>
   );
 }
@@ -353,9 +482,20 @@ export function PersonalSection() {
   const { language } = usePreferences();
   const copy = personalCopy[language];
   const shouldReduceMotion = useReducedMotion();
-  const musicPieceRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const selectedIdRef = useRef<PieceId | null>(null);
+  const switchTimeoutRef = useRef<number | null>(null);
+  const closeTimeoutRef = useRef<number | null>(null);
   const [selectedId, setSelectedId] = useState<PieceId | null>(null);
-  const [isMusicVisible, setIsMusicVisible] = useState(false);
+  const [displayedId, setDisplayedId] = useState<PieceId | null>(null);
+  const [openerId, setOpenerId] = useState<PieceId | null>(null);
+  const [pendingExpandedFocusId, setPendingExpandedFocusId] =
+    useState<PieceId | null>(null);
+  const [pendingFanFocusId, setPendingFanFocusId] =
+    useState<PieceId | null>(null);
+  const [contentVisible, setContentVisible] = useState(true);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isSectionVisible, setIsSectionVisible] = useState(false);
   const [isPageVisible, setIsPageVisible] = useState(true);
   const [spinMode, setSpinMode] = useState<SpinMode>("auto");
   const [vinylReducedMotion, setVinylReducedMotion] = useState(true);
@@ -364,16 +504,16 @@ export function PersonalSection() {
   );
 
   useEffect(() => {
-    const musicPiece = musicPieceRef.current;
-    if (!musicPiece) return;
+    const section = sectionRef.current;
+    if (!section) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => setIsMusicVisible(entry.isIntersecting),
+      ([entry]) => setIsSectionVisible(entry.isIntersecting),
       { threshold: 0.08 },
     );
-    observer.observe(musicPiece);
+    observer.observe(section);
     return () => observer.disconnect();
-  }, [selectedId]);
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -394,19 +534,144 @@ export function PersonalSection() {
       document.removeEventListener("visibilitychange", updateVisibility);
   }, []);
 
+  useEffect(
+    () => () => {
+      if (switchTimeoutRef.current !== null) {
+        window.clearTimeout(switchTimeoutRef.current);
+      }
+      if (closeTimeoutRef.current !== null) {
+        window.clearTimeout(closeTimeoutRef.current);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (
+      pendingExpandedFocusId === null ||
+      displayedId !== pendingExpandedFocusId
+    ) {
+      return;
+    }
+
+    const control = sectionRef.current?.querySelector<HTMLButtonElement>(
+      `#personal-expanded-story [data-story-id="${pendingExpandedFocusId}"]`,
+    );
+    if (!control) return;
+    control.focus({ preventScroll: true });
+    setPendingExpandedFocusId(null);
+  }, [displayedId, pendingExpandedFocusId]);
+
+  useEffect(() => {
+    if (selectedId !== null || pendingFanFocusId === null) return;
+
+    const control = sectionRef.current?.querySelector<HTMLButtonElement>(
+      `.personal-fan [data-story-id="${pendingFanFocusId}"]`,
+    );
+    if (!control) return;
+    control.focus({ preventScroll: true });
+    setPendingFanFocusId(null);
+  }, [pendingFanFocusId, selectedId]);
+
   const rotationEnabled =
     spinMode === "playing" || (spinMode === "auto" && !vinylReducedMotion);
-  const isSpinning = rotationEnabled && isMusicVisible && isPageVisible;
-  const visibleCompactIds = selectedId
-    ? pieceIds.filter((id) => id !== selectedId)
-    : pieceIds;
-
-  const toggleStory = (id: PieceId) =>
-    setSelectedId((current) => (current === id ? null : id));
+  const isSpinning = rotationEnabled && isSectionVisible && isPageVisible;
   const toggleRotation = () =>
     setSpinMode(rotationEnabled ? "paused" : "playing");
 
-  const sharedMediaProps = (id: PieceId): MediaProps => ({
+  const clearInteractionTimers = () => {
+    if (switchTimeoutRef.current !== null) {
+      window.clearTimeout(switchTimeoutRef.current);
+      switchTimeoutRef.current = null;
+    }
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const openStory = (id: PieceId) => {
+    clearInteractionTimers();
+    setOpenerId(id);
+    setPendingExpandedFocusId(id);
+    selectedIdRef.current = id;
+    setDisplayedId(id);
+    setSelectedId(id);
+    setIsClosing(false);
+    setContentVisible(true);
+  };
+
+  const selectStory = (id: PieceId) => {
+    const current = selectedIdRef.current;
+    if (current === null) {
+      openStory(id);
+      return;
+    }
+    if (current === id) return;
+
+    clearInteractionTimers();
+    selectedIdRef.current = id;
+    setSelectedId(id);
+    setIsClosing(false);
+    setContentVisible(false);
+
+    const showNextStory = () => {
+      if (selectedIdRef.current !== id) return;
+      setDisplayedId(id);
+      if (shouldReduceMotion) {
+        setContentVisible(true);
+      } else {
+        window.requestAnimationFrame(() => setContentVisible(true));
+      }
+      switchTimeoutRef.current = null;
+    };
+
+    if (shouldReduceMotion) {
+      showNextStory();
+    } else {
+      switchTimeoutRef.current = window.setTimeout(showNextStory, 110);
+    }
+  };
+
+  const closeStory = () => {
+    const closingId = selectedIdRef.current;
+    if (closingId === null) return;
+
+    clearInteractionTimers();
+    setIsClosing(true);
+    setContentVisible(false);
+
+    const showFan = () => {
+      selectedIdRef.current = null;
+      setSelectedId(null);
+      setDisplayedId(null);
+      setIsClosing(false);
+      setContentVisible(true);
+      closeTimeoutRef.current = null;
+
+      setPendingFanFocusId(openerId ?? closingId);
+    };
+
+    if (shouldReduceMotion) {
+      showFan();
+    } else {
+      closeTimeoutRef.current = window.setTimeout(showFan, 170);
+    }
+  };
+
+  const toggleStory = (id: PieceId) => {
+    if (selectedIdRef.current === null) {
+      openStory(id);
+    } else if (selectedIdRef.current === id) {
+      closeStory();
+    } else {
+      selectStory(id);
+    }
+  };
+
+  const sharedMediaProps = (
+    id: PieceId,
+  ): Omit<MediaProps, "onToggle" | "reducedMotion"> => ({
     id,
     copy,
     expanded: false,
@@ -414,11 +679,14 @@ export function PersonalSection() {
     isSpinning,
     showAlbumCover: albumCoverAvailable,
     onAlbumCoverError: () => setAlbumCoverAvailable(false),
-    onToggle: toggleStory,
   });
 
   return (
-    <section id="personal" className="section-shell section-spacing">
+    <section
+      ref={sectionRef}
+      id="personal"
+      className="section-shell section-spacing"
+    >
       <div className="grid gap-8 lg:grid-cols-[1fr_0.82fr] lg:items-end">
         <motion.div {...reveal(shouldReduceMotion)}>
           <p className="eyebrow">{copy.eyebrow}</p>
@@ -432,42 +700,80 @@ export function PersonalSection() {
         </motion.p>
       </div>
 
-      <div className="personal-desk mt-12 rounded-[2.75rem] p-3 sm:p-6 lg:p-8">
-        <AnimatePresence mode="wait" initial={false}>
-          {selectedId ? (
-            <ExpandedStory
-              key={selectedId}
-              {...sharedMediaProps(selectedId)}
-              expanded
-              isSelected
-              rotationEnabled={rotationEnabled}
-              onToggleRotation={toggleRotation}
-              onBack={() => setSelectedId(null)}
-              musicRef={selectedId === "music" ? musicPieceRef : undefined}
-              reducedMotion={shouldReduceMotion}
-            />
-          ) : null}
-        </AnimatePresence>
-
-        <div
-          className={`personal-fan ${selectedId ? "is-selector" : "is-resting"}`}
+      <LayoutGroup id="personal-story-layout">
+        <motion.div
+          layout
+          className="personal-desk mt-12"
+          transition={{
+            layout: shouldReduceMotion
+              ? { duration: 0 }
+              : layoutTransition,
+          }}
         >
-          {visibleCompactIds.map((id, compactIndex) => {
-            const originalIndex = pieceIds.indexOf(id);
-            return (
-              <CompactCard
-                key={id}
-                {...sharedMediaProps(id)}
-                index={selectedId ? compactIndex + 1 : originalIndex}
-                rotationEnabled={rotationEnabled}
-                onToggleRotation={toggleRotation}
-                musicRef={id === "music" ? musicPieceRef : undefined}
-                reducedMotion={shouldReduceMotion}
-              />
-            );
-          })}
-        </div>
-      </div>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {selectedId && displayedId ? (
+              <motion.div
+                key="personal-detail-state"
+                layout
+                className="personal-detail-state"
+                transition={{
+                  layout: shouldReduceMotion
+                    ? { duration: 0 }
+                    : layoutTransition,
+                }}
+              >
+                <ExpandedStory
+                  {...sharedMediaProps(displayedId)}
+                  onToggle={toggleStory}
+                  expanded
+                  isSelected
+                  rotationEnabled={rotationEnabled}
+                  onToggleRotation={toggleRotation}
+                  onBack={closeStory}
+                  contentVisible={contentVisible}
+                  isClosing={isClosing}
+                  reducedMotion={shouldReduceMotion}
+                />
+                <motion.div
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: shouldReduceMotion ? 0 : 0.2,
+                    delay: shouldReduceMotion ? 0 : 0.12,
+                  }}
+                >
+                  <StorySelectors
+                    copy={copy}
+                    selectedId={selectedId}
+                    onSelect={selectStory}
+                  />
+                </motion.div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="personal-fan-state"
+                className="personal-fan is-resting"
+                initial={shouldReduceMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+              >
+                {pieceIds.map((id, index) => (
+                  <CompactCard
+                    key={id}
+                    {...sharedMediaProps(id)}
+                    index={index}
+                    rotationEnabled={rotationEnabled}
+                    onToggleRotation={toggleRotation}
+                    onToggle={toggleStory}
+                    reducedMotion={shouldReduceMotion}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </LayoutGroup>
     </section>
   );
 }
