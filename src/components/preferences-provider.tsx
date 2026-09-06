@@ -31,9 +31,14 @@ function subscribeToPreferences(callback: () => void) {
 }
 
 function getLanguageSnapshot(): Language {
-  return window.localStorage.getItem("portfolio-language") === "en"
-    ? "en"
-    : "es";
+  try {
+    const storedLanguage = window.localStorage.getItem("portfolio-language");
+    if (storedLanguage === "es" || storedLanguage === "en") {
+      return storedLanguage;
+    }
+  } catch {}
+
+  return document.documentElement.lang === "en" ? "en" : "es";
 }
 
 function getThemeSnapshot(): Theme {
@@ -54,7 +59,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = (nextLanguage: Language) => {
     document.documentElement.lang = nextLanguage;
-    window.localStorage.setItem("portfolio-language", nextLanguage);
+    try {
+      window.localStorage.setItem("portfolio-language", nextLanguage);
+    } catch {}
     window.dispatchEvent(new Event(preferenceEvent));
   };
 
@@ -62,7 +69,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     const nextTheme = theme === "light" ? "dark" : "light";
     document.documentElement.dataset.theme = nextTheme;
     document.documentElement.style.colorScheme = nextTheme;
-    window.localStorage.setItem("portfolio-theme", nextTheme);
+    try {
+      window.localStorage.setItem("portfolio-theme", nextTheme);
+    } catch {}
     window.dispatchEvent(new Event(preferenceEvent));
   };
 

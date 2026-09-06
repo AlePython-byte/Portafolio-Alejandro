@@ -8,11 +8,12 @@ import { CloseIcon, MenuIcon, MoonIcon, SunIcon } from "./icons";
 import { usePreferences } from "./preferences-provider";
 
 const navItems = [
-  ["home", "home"],
-  ["about", "about"],
-  ["skills", "skills"],
-  ["projects", "projects"],
-  ["contact", "contact"],
+  ["home", "home", "00"],
+  ["about", "about", "01"],
+  ["personal", "personal", "02"],
+  ["skills", "skills", "03"],
+  ["projects", "projects", "04"],
+  ["contact", "contact", "05"],
 ] as const;
 
 export function Navigation() {
@@ -92,7 +93,7 @@ export function Navigation() {
           {profile.initials}
         </a>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-1 xl:flex">
           {navItems.map(([id, label]) => (
             <a
               key={id}
@@ -142,7 +143,7 @@ export function Navigation() {
           </button>
           <button
             ref={menuButtonRef}
-            className="control-button grid size-12 place-items-center rounded-2xl lg:hidden"
+            className="control-button grid size-12 place-items-center rounded-2xl xl:hidden"
             type="button"
             onClick={() => setIsOpen((current) => !current)}
             aria-expanded={isOpen}
@@ -162,13 +163,13 @@ export function Navigation() {
         {isOpen ? (
           <motion.div
             id="mobile-menu"
-            className="mobile-menu mx-auto mt-2 max-w-[76rem] overflow-hidden rounded-[1.4rem] p-2 lg:hidden"
+            className="mobile-menu mx-auto mt-2 max-w-[76rem] overflow-hidden rounded-[1.4rem] p-2 xl:hidden"
             initial={shouldReduceMotion ? false : { opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
             transition={{ duration: 0.18 }}
           >
-            {navItems.map(([id, label], index) => (
+            {navItems.map(([id, label, number]) => (
               <a
                 key={id}
                 className={`mobile-nav-link ${activeSection === id ? "is-active" : ""}`}
@@ -177,7 +178,7 @@ export function Navigation() {
                 aria-current={activeSection === id ? "location" : undefined}
               >
                 <span className="text-[0.65rem] font-bold text-[var(--accent)]">
-                  0{index + 1}
+                  {number}
                 </span>
                 {copy.nav[label]}
               </a>

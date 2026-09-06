@@ -4,6 +4,7 @@ export const translations = {
     nav: {
       home: "Inicio",
       about: "Acerca de mí",
+      personal: "Mi lado personal",
       skills: "Habilidades",
       projects: "Proyectos",
       contact: "Contacto",
@@ -45,7 +46,7 @@ export const translations = {
       approachBody: "Aprender, analizar y construir con atención al detalle.",
     },
     skills: {
-      eyebrow: "02 · Habilidades",
+      eyebrow: "03 · Habilidades",
       title: "Las herramientas con las que construyo.",
       intro: "Organizo mis conocimientos en cinco áreas que conectan la interfaz, la lógica, los datos, la infraestructura y el flujo de trabajo.",
       hint: "Pasa el cursor o enfoca una carta",
@@ -53,7 +54,7 @@ export const translations = {
       cardLabel: "Categoría de habilidades",
     },
     projects: {
-      eyebrow: "03 · Proyectos",
+      eyebrow: "04 · Proyectos",
       title: "Una selección de mi trabajo.",
       intro: "Código, decisiones y aprendizajes reunidos en proyectos de software.",
       countLabel: "proyectos",
@@ -63,7 +64,7 @@ export const translations = {
       github: "Ver código",
     },
     contact: {
-      eyebrow: "04 · Contacto",
+      eyebrow: "05 · Contacto",
       title: "¿Tienes una idea? Hablemos",
       body: "Puedes escribirme para conversar sobre proyectos, compartir ideas o conectar conmigo.",
       copy: "Copiar correo",
@@ -78,6 +79,7 @@ export const translations = {
     nav: {
       home: "Home",
       about: "About me",
+      personal: "Personal side",
       skills: "Skills",
       projects: "Projects",
       contact: "Contact",
@@ -119,7 +121,7 @@ export const translations = {
       approachBody: "Learn, analyze, and build with attention to detail.",
     },
     skills: {
-      eyebrow: "02 · Skills",
+      eyebrow: "03 · Skills",
       title: "The tools I build with.",
       intro: "I organize my knowledge into five areas connecting interface, logic, data, infrastructure, and workflow.",
       hint: "Hover or focus a card",
@@ -127,7 +129,7 @@ export const translations = {
       cardLabel: "Skill category",
     },
     projects: {
-      eyebrow: "03 · Projects",
+      eyebrow: "04 · Projects",
       title: "A selection of my work.",
       intro: "Code, decisions, and lessons brought together through software projects.",
       countLabel: "projects",
@@ -137,7 +139,7 @@ export const translations = {
       github: "View code",
     },
     contact: {
-      eyebrow: "04 · Contact",
+      eyebrow: "05 · Contact",
       title: "Have an idea? Let’s talk",
       body: "You can write to me to discuss projects, share ideas, or connect.",
       copy: "Copy email",

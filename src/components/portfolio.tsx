@@ -5,6 +5,7 @@ import { AboutSection } from "./about-section";
 import { ContactSection } from "./contact-section";
 import { Hero } from "./hero";
 import { Navigation } from "./navigation";
+import { PersonalSection } from "./personal-section";
 import { PreferencesProvider, usePreferences } from "./preferences-provider";
 import { ProjectsSection } from "./projects-section";
 import { SkillsSection } from "./skills-section";
@@ -22,6 +23,7 @@ function PortfolioContent() {
       <main id="main-content">
         <Hero />
         <AboutSection />
+        <PersonalSection />
         <SkillsSection />
         <ProjectsSection />
         <ContactSection />
@@ -41,4 +43,3 @@ export function Portfolio() {
     </PreferencesProvider>
   );
 }
-

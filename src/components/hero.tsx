@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { PointerEvent } from "react";
+import { useEffect, useState, type PointerEvent } from "react";
 import {
   motion,
   useMotionValue,
@@ -23,6 +23,31 @@ export function Hero() {
   const rotateY = useMotionValue(0);
   const smoothRotateX = useSpring(rotateX, { stiffness: 180, damping: 22 });
   const smoothRotateY = useSpring(rotateY, { stiffness: 180, damping: 22 });
+  const [showScrollCue, setShowScrollCue] = useState(false);
+
+  useEffect(() => {
+    let animationFrame = 0;
+    const updateScrollCue = () =>
+      setShowScrollCue(window.scrollY <= window.innerHeight * 0.1);
+    const scheduleUpdate = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(updateScrollCue);
+    };
+    const delayedCheck = window.setTimeout(scheduleUpdate, 180);
+
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("pageshow", scheduleUpdate);
+    window.addEventListener("hashchange", scheduleUpdate);
+    scheduleUpdate();
+
+    return () => {
+      window.clearTimeout(delayedCheck);
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("pageshow", scheduleUpdate);
+      window.removeEventListener("hashchange", scheduleUpdate);
+    };
+  }, []);
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "mouse" || shouldReduceMotion) return;
@@ -42,7 +67,7 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="section-shell hero-grid relative grid min-h-[calc(100svh-2rem)] items-center gap-14 pb-14 pt-32 sm:pt-36 xl:gap-16 xl:pb-16 xl:pt-40"
+      className="section-shell hero-grid relative grid min-h-[calc(100svh-2rem)] items-center gap-14 pb-14 pt-32 sm:pt-36 xl:gap-16 xl:pb-24 xl:pt-40"
     >
       <motion.div
         className="relative z-10 min-w-0"
@@ -124,13 +149,20 @@ export function Hero() {
         </motion.div>
       </motion.div>
 
-      <a
+      <motion.a
         href="#about"
         className="scroll-cue absolute bottom-5 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--muted)] xl:flex"
+        animate={
+          showScrollCue ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }
+        }
+        transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
+        aria-hidden={!showScrollCue}
+        tabIndex={showScrollCue ? 0 : -1}
+        style={{ pointerEvents: showScrollCue ? "auto" : "none" }}
       >
         {copy.scroll}
         <ArrowDownIcon className="size-4" />
-      </a>
+      </motion.a>
     </section>
   );
 }
